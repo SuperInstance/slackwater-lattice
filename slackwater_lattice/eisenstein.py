@@ -228,16 +228,19 @@ def hex_distance(a: EisensteinInteger, b: EisensteinInteger) -> int:
     Hexagonal grid distance (number of steps) between two lattice points.
     This is the graph distance on the neighbor graph.
 
-    In Eisenstein (axial) coordinates, the hex distance is:
-        d = max(|da|, |db|, |da + db|)
+    For the A₂ lattice with neighbor directions
+    {(±1,0), (0,±1), (±1,±1)}, the hex distance is:
+
+        d = max(|da|, |db|)  if da and db have the same sign (or either is 0)
+        d = |da| + |db|      if da and db have opposite signs
 
     where da = a.a - b.a, db = a.b - b.b.
-    This is equivalent to converting to cube coordinates and taking
-    the Chebyshev distance.
     """
     da = a.a - b.a
     db = a.b - b.b
-    return max(abs(da), abs(db), abs(da + db))
+    if da * db >= 0:
+        return max(abs(da), abs(db))
+    return abs(da) + abs(db)
 
 
 def midpoint_region(a: EisensteinInteger, b: EisensteinInteger) -> list[EisensteinInteger]:

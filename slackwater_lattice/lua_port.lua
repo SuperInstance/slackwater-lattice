@@ -74,7 +74,10 @@ end
 function Lattice.hexDistance(p1: {a: number, b: number}, p2: {a: number, b: number}): number
     local da = p1.a - p2.a
     local db = p1.b - p2.b
-    return math.floor((math.abs(da) + math.abs(db) + math.abs(da + db)) / 2)
+    if da * db >= 0 then
+        return math.max(math.abs(da), math.abs(db))
+    end
+    return math.abs(da) + math.abs(db)
 end
 
 --[[

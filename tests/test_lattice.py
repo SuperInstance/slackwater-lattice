@@ -143,9 +143,9 @@ class TestEisensteinInteger:
         """Hex distance from origin."""
         assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(3, 0)) == 3
         assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(0, 3)) == 3
-        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(3, 3)) == 6
+        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(3, 3)) == 3  # same sign sector
         assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(1, 1)) == 1
-        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(2, -1)) == 2
+        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(2, -1)) == 3  # opposite sign
 
     def test_equality(self):
         assert EisensteinInteger(3, 1) == EisensteinInteger(3, 1)
