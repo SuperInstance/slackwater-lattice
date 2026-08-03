@@ -28,13 +28,15 @@ EISENSTEIN_OMEGA: tuple[float, float] = (-0.5, math.sqrt(3.0) / 2.0)
 
 # The six neighbor directions on the A₂ lattice.
 # Each is a unit vector in Eisenstein coordinates.
+# With ω = e^(2πi/3), the norm is N(a+bω) = a² - ab + b².
+# The six units (norm-1 elements) are: ±1, ±ω, ±(1+ω).
 NEIGHBOR_DIRECTIONS: tuple[tuple[int, int], ...] = (
-    (1, 0),   # east
-    (0, 1),   # north-east
-    (-1, 1),  # north-west
-    (-1, 0),  # west
-    (0, -1),  # south-west
-    (1, -1),  # south-east
+    (1, 0),   # +1
+    (-1, 0),  # -1
+    (0, 1),   # +ω
+    (0, -1),  # -ω
+    (1, 1),   # +(1+ω)
+    (-1, -1), # -(1+ω)
 )
 
 
@@ -180,7 +182,7 @@ class EisensteinInteger:
 
     def rings(self, radius: int) -> list[EisensteinInteger]:
         """
-        Return all lattice points within `radius` (in lattice distance)
+        Return all lattice points within `radius` (in hex distance)
         of this point, excluding self. Ordered by distance.
         """
         if radius <= 0:
@@ -191,7 +193,8 @@ class EisensteinInteger:
                 if da == 0 and db == 0:
                     continue
                 offset = EisensteinInteger(da, db)
-                if round(math.sqrt(offset.norm())) <= radius:
+                d = hex_distance(EisensteinInteger(0, 0), offset)
+                if d <= radius:
                     result.append(self + offset)
         result.sort()
         return result
@@ -225,20 +228,16 @@ def hex_distance(a: EisensteinInteger, b: EisensteinInteger) -> int:
     Hexagonal grid distance (number of steps) between two lattice points.
     This is the graph distance on the neighbor graph.
 
-    For the A₂ lattice, the hex distance is:
-        max(|da|, |db|, |da + db|)  where da = a₁-a₂, db = b₁-b₂
-
-    Wait — that's the cube-coordinate formula. For Eisenstein coordinates,
-    we need to convert. Actually, in Eisenstein (axial) coordinates, the
-    hex distance is:
-
-        d = (|da| + |db| + |da + db|) / 2
+    In Eisenstein (axial) coordinates, the hex distance is:
+        d = max(|da|, |db|, |da + db|)
 
     where da = a.a - b.a, db = a.b - b.b.
+    This is equivalent to converting to cube coordinates and taking
+    the Chebyshev distance.
     """
     da = a.a - b.a
     db = a.b - b.b
-    return (abs(da) + abs(db) + abs(da + db)) // 2
+    return max(abs(da), abs(db), abs(da + db))
 
 
 def midpoint_region(a: EisensteinInteger, b: EisensteinInteger) -> list[EisensteinInteger]:

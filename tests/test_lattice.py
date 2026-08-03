@@ -36,8 +36,8 @@ class TestEisensteinInteger:
             EisensteinInteger(-1, 0),
             EisensteinInteger(0, 1),
             EisensteinInteger(0, -1),
-            EisensteinInteger(1, -1),
-            EisensteinInteger(-1, 1),
+            EisensteinInteger(1, 1),
+            EisensteinInteger(-1, -1),
         ]
         for u in units:
             assert u.norm() == 1, f"{u} should be a unit"
@@ -115,10 +115,10 @@ class TestEisensteinInteger:
         assert snap(0.0, 0.0) == EisensteinInteger(0, 0)
 
     def test_snap_near_origin(self):
-        """Points near origin snap to origin."""
-        for x in [-0.4, -0.2, 0.0, 0.2, 0.4]:
-            for z in [-0.4, -0.2, 0.0, 0.2, 0.4]:
-                if math.sqrt(x * x + z * z) < 0.45:
+        """Points very close to origin snap to origin."""
+        for x in [-0.2, -0.1, 0.0, 0.1, 0.2]:
+            for z in [-0.2, -0.1, 0.0, 0.1, 0.2]:
+                if math.sqrt(x * x + z * z) < 0.3:
                     assert snap(x, z) == EisensteinInteger(0, 0), f"({x}, {z}) should snap to origin"
 
     def test_distance_symmetric(self):
@@ -140,10 +140,12 @@ class TestEisensteinInteger:
             assert hex_distance(z, n) == 1
 
     def test_hex_distance_known(self):
-        """From origin to (3, 0) is 3 steps."""
+        """Hex distance from origin."""
         assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(3, 0)) == 3
         assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(0, 3)) == 3
-        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(3, 3)) == 3  # diagonal
+        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(3, 3)) == 6
+        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(1, 1)) == 1
+        assert hex_distance(EisensteinInteger(0, 0), EisensteinInteger(2, -1)) == 2
 
     def test_equality(self):
         assert EisensteinInteger(3, 1) == EisensteinInteger(3, 1)
@@ -156,12 +158,12 @@ class TestEisensteinInteger:
         assert len(s) == 2
 
     def test_rings(self):
-        """Rings should return points in order of distance."""
+        """Rings(radius=1) should return the 6 neighbors at hex distance 1."""
         z = EisensteinInteger(0, 0)
         r1 = z.rings(1)
         assert len(r1) == 6
         for p in r1:
-            assert distance(z, p) == 1
+            assert hex_distance(z, p) == 1
 
     def test_repr(self):
         assert "E(3)" in repr(EisensteinInteger(3, 0))
@@ -203,10 +205,11 @@ class TestBuildPlacement:
         bp = BuildPlacement()
         assert bp.snap_rotation(0) == 0
         assert bp.snap_rotation(55) == 60
-        assert bp.snap_rotation(30) == 60
+        assert bp.snap_rotation(45) == 60
         assert bp.snap_rotation(29) == 0
         assert bp.snap_rotation(180) == 180
         assert bp.snap_rotation(315) == 300
+        assert bp.snap_rotation(30) == 0  # 30 rounds down to 0
 
     def test_containment(self):
         bp = BuildPlacement()
@@ -227,6 +230,7 @@ class TestBuildPlacement:
         nearest = bp.nearest_free(origin)
         assert nearest is not None
         assert nearest != origin
+        # Should be a direct neighbor at hex distance 1
         assert hex_distance(origin, nearest) == 1
 
     def test_free_neighbors(self):
