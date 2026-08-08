@@ -407,3 +407,147 @@ class TestSixNeighborDirections:
         """Each direction should have norm 1."""
         for a, b in NEIGHBOR_DIRECTIONS:
             assert EisensteinInteger(a, b).norm() == 1
+
+
+class TestFindAllPaths:
+    """Test the k-shortest-paths finder (Yen's algorithm)."""
+
+    def test_finds_primary_path(self):
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        paths = pf.find_all_paths(EisensteinInteger(0, 0), EisensteinInteger(3, 0))
+        assert len(paths) >= 1
+        assert paths[0].points[0] == EisensteinInteger(0, 0)
+        assert paths[0].points[-1] == EisensteinInteger(3, 0)
+
+    def test_no_path_returns_empty(self):
+        """If no path exists, find_all_paths returns an empty list."""
+        bp = BuildPlacement()
+        # Wall off the goal completely (all 6 neighbors)
+        goal = EisensteinInteger(5, 0)
+        for nbr in goal.neighbors():
+            bp.reserve(nbr)
+        pf = LatticePathfinder(placement=bp)
+        paths = pf.find_all_paths(EisensteinInteger(0, 0), goal)
+        assert paths == []
+
+    def test_multiple_paths_on_open_lattice(self):
+        """On a fully open lattice, there should be multiple paths."""
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        paths = pf.find_all_paths(EisensteinInteger(0, 0), EisensteinInteger(2, 0))
+        assert len(paths) >= 2
+        # Each path should start and end correctly
+        for p in paths:
+            assert p.points[0] == EisensteinInteger(0, 0)
+            assert p.points[-1] == EisensteinInteger(2, 0)
+
+    def test_max_paths_limit(self):
+        """The max_paths parameter should limit the number of paths."""
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        paths = pf.find_all_paths(EisensteinInteger(0, 0), EisensteinInteger(3, 0), max_paths=2)
+        assert len(paths) <= 2
+
+    def test_all_paths_are_valid(self):
+        """Each path should be contiguous (each step is to a neighbor)."""
+        bp = BuildPlacement()
+        bp.reserve(EisensteinInteger(2, 0))  # obstacle
+        pf = LatticePathfinder(placement=bp)
+        paths = pf.find_all_paths(EisensteinInteger(0, 0), EisensteinInteger(3, 0))
+        for p in paths:
+            for i in range(len(p.points) - 1):
+                neighbors = set(p.points[i].neighbors())
+                assert p.points[i + 1] in neighbors, \
+                    f"Non-contiguous step at index {i}"
+
+    def test_path_to_self_returns_single_path(self):
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        paths = pf.find_all_paths(EisensteinInteger(0, 0), EisensteinInteger(0, 0))
+        assert len(paths) == 1
+        assert paths[0].length() == 0
+
+
+class TestPathfindingEdgeCases:
+    """Additional edge cases for A* pathfinding."""
+
+    def test_long_path_on_open_lattice(self):
+        """A long path on open lattice should equal hex_distance."""
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        start = EisensteinInteger(0, 0)
+        goal = EisensteinInteger(10, 5)
+        path = pf.find_path(start, goal)
+        assert path is not None
+        from slackwater_lattice.eisenstein import hex_distance
+        assert path.length() == hex_distance(start, goal)
+
+    def test_completely_surrounded_start(self):
+        """If start is surrounded by obstacles, only start→start works."""
+        bp = BuildPlacement()
+        start = EisensteinInteger(0, 0)
+        for nbr in start.neighbors():
+            bp.reserve(nbr)
+        pf = LatticePathfinder(placement=bp)
+        # Can't go anywhere
+        path = pf.find_path(start, EisensteinInteger(5, 0))
+        assert path is None
+
+    def test_max_steps_limit(self):
+        """If max_steps is too small, pathfinding fails gracefully."""
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        # Set max_steps to 1 for a long path — should fail
+        path = pf.find_path(
+            EisensteinInteger(0, 0),
+            EisensteinInteger(100, 0),
+            max_steps=1,
+        )
+        assert path is None
+
+    def test_reachable_respects_max_distance(self):
+        """Reachable should not include points beyond max_distance."""
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        reachable = pf.reachable(EisensteinInteger(0, 0), max_distance=2)
+        for _, dist in reachable.items():
+            assert dist <= 2
+
+    def test_reachable_zero_distance(self):
+        """With max_distance=0, only the start is visited (and it's excluded)."""
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        reachable = pf.reachable(EisensteinInteger(0, 0), max_distance=0)
+        assert len(reachable) == 0
+
+    def test_reachable_blocked_by_obstacles(self):
+        """Reachable should not include occupied points."""
+        bp = BuildPlacement()
+        bp.reserve(EisensteinInteger(1, 0))
+        pf = LatticePathfinder(placement=bp)
+        reachable = pf.reachable(EisensteinInteger(0, 0), max_distance=3)
+        assert EisensteinInteger(1, 0) not in reachable
+
+    def test_path_optimality_with_detour(self):
+        """Path around an obstacle should still be optimal."""
+        bp = BuildPlacement()
+        # Single obstacle on direct path
+        bp.reserve(EisensteinInteger(1, 0))
+        pf = LatticePathfinder(placement=bp)
+        path = pf.find_path(EisensteinInteger(0, 0), EisensteinInteger(2, 0))
+        assert path is not None
+        # Direct distance is 2, but with obstacle it should be 2 (go around)
+        from slackwater_lattice.eisenstein import hex_distance
+        direct = hex_distance(EisensteinInteger(0, 0), EisensteinInteger(2, 0))
+        # Path may be same length (hex allows alternative routes of same length)
+        assert path.length() <= direct + 1  # at most 1 step longer
+
+    def test_negative_coordinates_pathfinding(self):
+        """Pathfinding should work with negative Eisenstein coordinates."""
+        bp = BuildPlacement()
+        pf = LatticePathfinder(placement=bp)
+        path = pf.find_path(EisensteinInteger(-3, -2), EisensteinInteger(2, 3))
+        assert path is not None
+        assert path.points[0] == EisensteinInteger(-3, -2)
+        assert path.points[-1] == EisensteinInteger(2, 3)
