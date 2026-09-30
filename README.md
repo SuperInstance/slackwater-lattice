@@ -1,6 +1,6 @@
 # slackwater-lattice
 
-![tests](https://img.shields.io/badge/tests-52%20passed-brightgreen)
+![tests](https://img.shields.io/badge/tests-127%20passed-brightgreen)
 ![version](https://img.shields.io/badge/version-0.1.0-blue)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 
