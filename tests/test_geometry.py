@@ -73,6 +73,76 @@ class TestHexLine:
             assert d <= 1, f"Non-adjacent step at {i}: {result[i]} → {result[i+1]}"
 
 
+# ── hex_line exactness tests (task 67-a) ──────────────────────────
+#
+# v0.1.0 interpolated the line in Cartesian floats and snapped each sample
+# with Python's banker's rounding. For segments whose midpoint falls on a
+# hexagon edge (offsets like (1,-1), i.e. the 1-ω diagonal), the mid sample
+# tied between two lattice points and could snap back onto an endpoint —
+# the middle point was dropped and consecutive line points ended up at hex
+# distance 2. Brute force on v0.1.0 over the ±12 box: 60,376 of 390,000
+# ordered pairs produced a non-neighbor gap. These tests pin the contract:
+# exact endpoints, exact length, and every consecutive pair hex-neighbors.
+
+
+class TestHexLineExact:
+    # Deterministic failing pairs found by the v0.1.0 brute-force audit
+    # (smallest witnesses, sorted by hex distance).
+    RED_CASES = [
+        (EisensteinInteger(0, 0), EisensteinInteger(1, -1)),   # d=2: middle dropped
+        (EisensteinInteger(1, 1), EisensteinInteger(2, 0)),    # d=2
+        (EisensteinInteger(-2, 0), EisensteinInteger(-3, 1)),  # d=2
+        (EisensteinInteger(-3, 2), EisensteinInteger(0, 1)),   # d=4: one gap
+        (EisensteinInteger(-3, 3), EisensteinInteger(0, 0)),   # d=6: two gaps
+    ]
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_consecutive_points_are_hex_neighbors(self, start, goal):
+        line = hex_line(start, goal)
+        assert line[0] == start
+        assert line[-1] == goal
+        for i in range(len(line) - 1):
+            d = hex_distance(line[i], line[i + 1])
+            assert d == 1, (
+                f"{start}→{goal}: step {i} {line[i]} → {line[i + 1]} at hex distance {d}, not 1"
+            )
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_line_length_is_distance_plus_one(self, start, goal):
+        line = hex_line(start, goal)
+        expected = hex_distance(start, goal) + 1
+        assert len(line) == expected, (
+            f"{start}→{goal}: line has {len(line)} points, expected {expected}"
+        )
+
+    def test_tie_break_deterministic(self):
+        """Documented tie-break: half-integer lerp components round half-up
+        (toward +∞); on a hexagon-edge tie the deviation correction re-derives
+        the cube z component. E(0,0)→E(1,-1) therefore goes through E(1,0)."""
+        line = hex_line(EisensteinInteger(0, 0), EisensteinInteger(1, -1))
+        assert line == [
+            EisensteinInteger(0, 0),
+            EisensteinInteger(1, 0),
+            EisensteinInteger(1, -1),
+        ]
+
+    def test_all_pairs_small_box_are_valid_lines(self):
+        """Every ordered pair in the ±3 box: exact endpoints, exact length,
+        consecutive points at hex distance exactly 1."""
+        pts = [EisensteinInteger(a, b) for a in range(-3, 4) for b in range(-3, 4)]
+        for s in pts:
+            for g in pts:
+                if s == g:
+                    continue
+                line = hex_line(s, g)
+                d = hex_distance(s, g)
+                assert line[0] == s and line[-1] == g
+                assert len(line) == d + 1, f"{s}→{g}: length {len(line)} != {d + 1}"
+                for i in range(len(line) - 1):
+                    step = hex_distance(line[i], line[i + 1])
+                    assert step == 1, f"{s}→{g}: gap of {step} at index {i}"
+
+
 # ── flood_fill tests ──────────────────────────────────────────────
 
 class TestFloodFill:

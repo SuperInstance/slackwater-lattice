@@ -21,45 +21,61 @@ def hex_line(start: EisensteinInteger, goal: EisensteinInteger) -> list[Eisenste
     """
     Draw a line on the hexagonal lattice from start to goal.
 
-    Uses cube-coordinate interpolation rounded to nearest lattice points.
-    Every point in the result is a valid EisensteinInteger, and consecutive
-    points are always neighbors (hex distance ≤ 1).
+    Exact integer algorithm — no floating point, no drift:
 
-    Returns at least [start] and [start, goal] for any input.
+      1. Convert (a, b) to cube coordinates (x, y, z) = (a, b - a, -b),
+         which satisfy x + y + z = 0 and map the six neighbor steps
+         ±(1,0), ±(0,1), ±(1,1) to unit cube steps.
+      2. Interpolate along the segment with the exact rational lerp
+         component i/d (integer numerators over the common denominator d
+         = hex_distance(start, goal)).
+      3. Round each component half-up (ties toward +∞) and re-derive the
+         component with the largest rounding deviation so x + y + z = 0
+         holds exactly. Deterministic tie-break: on equal deviations the
+         z component is re-derived (the check order is x, then y, then z).
+
+    Every point in the result is a valid EisensteinInteger, consecutive
+    points are always neighbors (hex distance exactly 1), the endpoints
+    are exact, and the line has exactly hex_distance(start, goal) + 1
+    points. The result is identical on every platform (pure integer
+    arithmetic).
     """
     if start == goal:
         return [start]
 
     d = hex_distance(start, goal)
-    if d == 0:
-        return [start]
+
+    def cube(p: EisensteinInteger) -> tuple[int, int, int]:
+        return (p.a, p.b - p.a, -p.b)
+
+    ax, ay, az = cube(start)
+    bx, by, bz = cube(goal)
+
+    def round_half_up(num: int, den: int) -> int:
+        """floor(num/den + 1/2) for den > 0 — ties round toward +∞."""
+        return (2 * num + den) // (2 * den)
 
     result: list[EisensteinInteger] = []
-    # Convert to cube coordinates for interpolation
-    # Eisenstein (a, b) → cube (x, y, z) where:
-    #   x = a, z = b, y = -x - z = -(a + b)
-    # Wait — actually for our A₂ lattice:
-    #   cube_x = a
-    #   cube_z = b
-    #   cube_y = -(a + b)  ... but this doesn't satisfy x+y+z=0 for our coords
-    #
-    # Our neighbor directions are: (±1,0), (0,±1), (±1,±1)
-    # Let's use the direct approach: interpolate in Cartesian and snap back.
-
-    sx, sy = start.to_cartesian()
-    gx, gy = goal.to_cartesian()
-
     for i in range(d + 1):
-        t = i / d
-        x = sx + (gx - sx) * t
-        y = sy + (gy - sy) * t
-        point = EisensteinInteger.from_cartesian(x, y)
-        if not result or result[-1] != point:
-            result.append(point)
-
-    # Ensure the endpoint is exact
-    if result[-1] != goal:
-        result.append(goal)
+        # Exact lerp numerators over the common denominator d.
+        nx = (d - i) * ax + i * bx
+        ny = (d - i) * ay + i * by
+        nz = (d - i) * az + i * bz
+        rx = round_half_up(nx, d)
+        ry = round_half_up(ny, d)
+        rz = round_half_up(nz, d)
+        # Re-derive the component with the largest rounding deviation so
+        # that x + y + z = 0 exactly (tie-break: z is re-derived last).
+        dx = abs(rx * d - nx)
+        dy = abs(ry * d - ny)
+        dz = abs(rz * d - nz)
+        if dx > dy and dx > dz:
+            rx = -ry - rz
+        elif dy > dz:
+            ry = -rx - rz
+        else:
+            rz = -rx - ry
+        result.append(EisensteinInteger(rx, -rz))
 
     return result
 

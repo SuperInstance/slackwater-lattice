@@ -1,0 +1,291 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-9.0.2, pluggy-1.6.0 -- /home/z/.venv/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.14', 'Platform': 'Linux-5.10.134-013.15.kangaroo.al8.x86_64-x86_64-with-glibc2.41', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'Faker': '40.1.2', 'metadata': '3.1.1', 'asyncio': '1.3.0', 'ddtrace': '4.2.2', 'cov': '7.0.0', 'json-report': '1.5.0', 'anyio': '4.13.0'}}
+rootdir: /home/z/my-project/study/slackwater-lattice
+configfile: pyproject.toml
+plugins: Faker-40.1.2, metadata-3.1.1, asyncio-1.3.0, ddtrace-4.2.2, cov-7.0.0, json-report-1.5.0, anyio-4.13.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 38 items
+
+tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start0-goal0] FAILED [  2%]
+tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start1-goal1] FAILED [  5%]
+tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start2-goal2] FAILED [  7%]
+tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start3-goal3] FAILED [ 10%]
+tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start4-goal4] FAILED [ 13%]
+tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start0-goal0] FAILED [ 15%]
+tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start1-goal1] FAILED [ 18%]
+tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start2-goal2] FAILED [ 21%]
+tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start3-goal3] FAILED [ 23%]
+tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start4-goal4] FAILED [ 26%]
+tests/test_geometry.py::TestHexLineExact::test_tie_break_deterministic FAILED [ 28%]
+tests/test_geometry.py::TestHexLineExact::test_all_pairs_small_box_are_valid_lines FAILED [ 31%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_is_norm_one[1-0] PASSED [ 34%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_is_norm_one[-1-0] PASSED [ 36%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_is_norm_one[0-1] PASSED [ 39%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_is_norm_one[0--1] PASSED [ 42%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_is_norm_one[1-1] PASSED [ 44%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_is_norm_one[-1--1] PASSED [ 47%]
+tests/test_eisenstein.py::TestSixStepConformance::test_hex_distance_of_unit_step_is_one[1-0] PASSED [ 50%]
+tests/test_eisenstein.py::TestSixStepConformance::test_hex_distance_of_unit_step_is_one[-1-0] PASSED [ 52%]
+tests/test_eisenstein.py::TestSixStepConformance::test_hex_distance_of_unit_step_is_one[0-1] PASSED [ 55%]
+tests/test_eisenstein.py::TestSixStepConformance::test_hex_distance_of_unit_step_is_one[0--1] PASSED [ 57%]
+tests/test_eisenstein.py::TestSixStepConformance::test_hex_distance_of_unit_step_is_one[1-1] PASSED [ 60%]
+tests/test_eisenstein.py::TestSixStepConformance::test_hex_distance_of_unit_step_is_one[-1--1] PASSED [ 63%]
+tests/test_eisenstein.py::TestSixStepConformance::test_neighbors_contains_unit_step[1-0] PASSED [ 65%]
+tests/test_eisenstein.py::TestSixStepConformance::test_neighbors_contains_unit_step[-1-0] PASSED [ 68%]
+tests/test_eisenstein.py::TestSixStepConformance::test_neighbors_contains_unit_step[0-1] PASSED [ 71%]
+tests/test_eisenstein.py::TestSixStepConformance::test_neighbors_contains_unit_step[0--1] PASSED [ 73%]
+tests/test_eisenstein.py::TestSixStepConformance::test_neighbors_contains_unit_step[1-1] PASSED [ 76%]
+tests/test_eisenstein.py::TestSixStepConformance::test_neighbors_contains_unit_step[-1--1] PASSED [ 78%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_cartesian_round_trip[1-0] PASSED [ 81%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_cartesian_round_trip[-1-0] PASSED [ 84%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_cartesian_round_trip[0-1] PASSED [ 86%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_cartesian_round_trip[0--1] PASSED [ 89%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_cartesian_round_trip[1-1] PASSED [ 92%]
+tests/test_eisenstein.py::TestSixStepConformance::test_unit_step_cartesian_round_trip[-1--1] PASSED [ 94%]
+tests/test_eisenstein.py::TestSixStepConformance::test_neighbors_exactly_the_six_units PASSED [ 97%]
+tests/test_eisenstein.py::TestSixStepConformance::test_hex_distance_matches_bfs_over_box PASSED [100%]
+
+=================================== FAILURES ===================================
+___ TestHexLineExact.test_consecutive_points_are_hex_neighbors[start0-goal0] ___
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cf9b7ccb0>, start = E(0)
+goal = E(1 - 1ω)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_consecutive_points_are_hex_neighbors(self, start, goal):
+        line = hex_line(start, goal)
+        assert line[0] == start
+        assert line[-1] == goal
+        for i in range(len(line) - 1):
+            d = hex_distance(line[i], line[i + 1])
+>           assert d == 1, (
+                f"{start}→{goal}: step {i} {line[i]} → {line[i + 1]} at hex distance {d}, not 1"
+            )
+E           AssertionError: E(0)→E(1 - 1ω): step 0 E(0) → E(1 - 1ω) at hex distance 2, not 1
+E           assert 2 == 1
+
+tests/test_geometry.py:106: AssertionError
+___ TestHexLineExact.test_consecutive_points_are_hex_neighbors[start1-goal1] ___
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cf9915010>
+start = E(1 + 1ω), goal = E(2)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_consecutive_points_are_hex_neighbors(self, start, goal):
+        line = hex_line(start, goal)
+        assert line[0] == start
+        assert line[-1] == goal
+        for i in range(len(line) - 1):
+            d = hex_distance(line[i], line[i + 1])
+>           assert d == 1, (
+                f"{start}→{goal}: step {i} {line[i]} → {line[i + 1]} at hex distance {d}, not 1"
+            )
+E           AssertionError: E(1 + 1ω)→E(2): step 0 E(1 + 1ω) → E(2) at hex distance 2, not 1
+E           assert 2 == 1
+
+tests/test_geometry.py:106: AssertionError
+___ TestHexLineExact.test_consecutive_points_are_hex_neighbors[start2-goal2] ___
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cf9915070>, start = E(-2)
+goal = E(-3 + 1ω)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_consecutive_points_are_hex_neighbors(self, start, goal):
+        line = hex_line(start, goal)
+        assert line[0] == start
+        assert line[-1] == goal
+        for i in range(len(line) - 1):
+            d = hex_distance(line[i], line[i + 1])
+>           assert d == 1, (
+                f"{start}→{goal}: step {i} {line[i]} → {line[i + 1]} at hex distance {d}, not 1"
+            )
+E           AssertionError: E(-2)→E(-3 + 1ω): step 0 E(-2) → E(-3 + 1ω) at hex distance 2, not 1
+E           assert 2 == 1
+
+tests/test_geometry.py:106: AssertionError
+___ TestHexLineExact.test_consecutive_points_are_hex_neighbors[start3-goal3] ___
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cf9915370>
+start = E(-3 + 2ω), goal = E(1ω)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_consecutive_points_are_hex_neighbors(self, start, goal):
+        line = hex_line(start, goal)
+        assert line[0] == start
+        assert line[-1] == goal
+        for i in range(len(line) - 1):
+            d = hex_distance(line[i], line[i + 1])
+>           assert d == 1, (
+                f"{start}→{goal}: step {i} {line[i]} → {line[i + 1]} at hex distance {d}, not 1"
+            )
+E           AssertionError: E(-3 + 2ω)→E(1ω): step 1 E(-2 + 2ω) → E(-1 + 1ω) at hex distance 2, not 1
+E           assert 2 == 1
+
+tests/test_geometry.py:106: AssertionError
+___ TestHexLineExact.test_consecutive_points_are_hex_neighbors[start4-goal4] ___
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cf9914890>
+start = E(-3 + 3ω), goal = E(0)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_consecutive_points_are_hex_neighbors(self, start, goal):
+        line = hex_line(start, goal)
+        assert line[0] == start
+        assert line[-1] == goal
+        for i in range(len(line) - 1):
+            d = hex_distance(line[i], line[i + 1])
+>           assert d == 1, (
+                f"{start}→{goal}: step {i} {line[i]} → {line[i + 1]} at hex distance {d}, not 1"
+            )
+E           AssertionError: E(-3 + 3ω)→E(0): step 2 E(-2 + 2ω) → E(-1 + 1ω) at hex distance 2, not 1
+E           assert 2 == 1
+
+tests/test_geometry.py:106: AssertionError
+_____ TestHexLineExact.test_line_length_is_distance_plus_one[start0-goal0] _____
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cfa6784a0>, start = E(0)
+goal = E(1 - 1ω)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_line_length_is_distance_plus_one(self, start, goal):
+        line = hex_line(start, goal)
+        expected = hex_distance(start, goal) + 1
+>       assert len(line) == expected, (
+            f"{start}→{goal}: line has {len(line)} points, expected {expected}"
+        )
+E       AssertionError: E(0)→E(1 - 1ω): line has 2 points, expected 3
+E       assert 2 == 3
+E        +  where 2 = len([E(0), E(1 - 1ω)])
+
+tests/test_geometry.py:114: AssertionError
+_____ TestHexLineExact.test_line_length_is_distance_plus_one[start1-goal1] _____
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cfa678ce0>
+start = E(1 + 1ω), goal = E(2)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_line_length_is_distance_plus_one(self, start, goal):
+        line = hex_line(start, goal)
+        expected = hex_distance(start, goal) + 1
+>       assert len(line) == expected, (
+            f"{start}→{goal}: line has {len(line)} points, expected {expected}"
+        )
+E       AssertionError: E(1 + 1ω)→E(2): line has 2 points, expected 3
+E       assert 2 == 3
+E        +  where 2 = len([E(1 + 1ω), E(2)])
+
+tests/test_geometry.py:114: AssertionError
+_____ TestHexLineExact.test_line_length_is_distance_plus_one[start2-goal2] _____
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cfa678860>, start = E(-2)
+goal = E(-3 + 1ω)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_line_length_is_distance_plus_one(self, start, goal):
+        line = hex_line(start, goal)
+        expected = hex_distance(start, goal) + 1
+>       assert len(line) == expected, (
+            f"{start}→{goal}: line has {len(line)} points, expected {expected}"
+        )
+E       AssertionError: E(-2)→E(-3 + 1ω): line has 2 points, expected 3
+E       assert 2 == 3
+E        +  where 2 = len([E(-2), E(-3 + 1ω)])
+
+tests/test_geometry.py:114: AssertionError
+_____ TestHexLineExact.test_line_length_is_distance_plus_one[start3-goal3] _____
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cfa678980>
+start = E(-3 + 2ω), goal = E(1ω)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_line_length_is_distance_plus_one(self, start, goal):
+        line = hex_line(start, goal)
+        expected = hex_distance(start, goal) + 1
+>       assert len(line) == expected, (
+            f"{start}→{goal}: line has {len(line)} points, expected {expected}"
+        )
+E       AssertionError: E(-3 + 2ω)→E(1ω): line has 4 points, expected 5
+E       assert 4 == 5
+E        +  where 4 = len([E(-3 + 2ω), E(-2 + 2ω), E(-1 + 1ω), E(1ω)])
+
+tests/test_geometry.py:114: AssertionError
+_____ TestHexLineExact.test_line_length_is_distance_plus_one[start4-goal4] _____
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cfa678620>
+start = E(-3 + 3ω), goal = E(0)
+
+    @pytest.mark.parametrize("start,goal", RED_CASES)
+    def test_line_length_is_distance_plus_one(self, start, goal):
+        line = hex_line(start, goal)
+        expected = hex_distance(start, goal) + 1
+>       assert len(line) == expected, (
+            f"{start}→{goal}: line has {len(line)} points, expected {expected}"
+        )
+E       AssertionError: E(-3 + 3ω)→E(0): line has 5 points, expected 7
+E       assert 5 == 7
+E        +  where 5 = len([E(-3 + 3ω), E(-2 + 3ω), E(-2 + 2ω), E(-1 + 1ω), E(0)])
+
+tests/test_geometry.py:114: AssertionError
+________________ TestHexLineExact.test_tie_break_deterministic _________________
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cfa678c20>
+
+    def test_tie_break_deterministic(self):
+        """Documented tie-break: half-integer lerp components round half-up
+        (toward +∞); on a hexagon-edge tie the deviation correction re-derives
+        the cube z component. E(0,0)→E(1,-1) therefore goes through E(1,0)."""
+        line = hex_line(EisensteinInteger(0, 0), EisensteinInteger(1, -1))
+>       assert line == [
+            EisensteinInteger(0, 0),
+            EisensteinInteger(1, 0),
+            EisensteinInteger(1, -1),
+        ]
+E       AssertionError: assert [E(0), E(1 - 1ω)] == [E(0), E(1), E(1 - 1ω)]
+E         
+E         At index 1 diff: E(1 - 1ω) != E(1)
+E         Right contains one more item: E(1 - 1ω)
+E         
+E         Full diff:
+E           [
+E               E(0),...
+E         
+E         ...Full output truncated (3 lines hidden), use '-vv' to show
+
+tests/test_geometry.py:123: AssertionError
+__________ TestHexLineExact.test_all_pairs_small_box_are_valid_lines ___________
+
+self = <test_geometry.TestHexLineExact object at 0x7f7cfa676cf0>
+
+    def test_all_pairs_small_box_are_valid_lines(self):
+        """Every ordered pair in the ±3 box: exact endpoints, exact length,
+        consecutive points at hex distance exactly 1."""
+        pts = [EisensteinInteger(a, b) for a in range(-3, 4) for b in range(-3, 4)]
+        for s in pts:
+            for g in pts:
+                if s == g:
+                    continue
+                line = hex_line(s, g)
+                d = hex_distance(s, g)
+                assert line[0] == s and line[-1] == g
+>               assert len(line) == d + 1, f"{s}→{g}: length {len(line)} != {d + 1}"
+E               AssertionError: E(-3 - 2ω)→E(-3ω): length 4 != 5
+E               assert 4 == (4 + 1)
+E                +  where 4 = len([E(-3 - 2ω), E(-2 - 2ω), E(-1 - 3ω), E(-3ω)])
+
+tests/test_geometry.py:140: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start0-goal0]
+FAILED tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start1-goal1]
+FAILED tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start2-goal2]
+FAILED tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start3-goal3]
+FAILED tests/test_geometry.py::TestHexLineExact::test_consecutive_points_are_hex_neighbors[start4-goal4]
+FAILED tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start0-goal0]
+FAILED tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start1-goal1]
+FAILED tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start2-goal2]
+FAILED tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start3-goal3]
+FAILED tests/test_geometry.py::TestHexLineExact::test_line_length_is_distance_plus_one[start4-goal4]
+FAILED tests/test_geometry.py::TestHexLineExact::test_tie_break_deterministic
+FAILED tests/test_geometry.py::TestHexLineExact::test_all_pairs_small_box_are_valid_lines
+======================== 12 failed, 26 passed in 0.23s =========================

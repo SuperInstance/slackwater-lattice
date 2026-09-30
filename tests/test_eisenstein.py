@@ -190,6 +190,76 @@ class TestNeighbors:
             assert a in neighbors_n
 
 
+# ─── Six-Step Conformance Tests (task 67-a) ──────────────
+#
+# Wave-66 reported that hex_distance and neighbors() disagree for the
+# ±(1+ω) directions (the (1,1)/(-1,-1) steps). Brute-force audit on the
+# v0.1.0 code did NOT reproduce that: (1,1) has norm 1 (a true unit of
+# ℤ[ω]) and hex_distance treats it as a 1-step move via the same-sign
+# max(|da|,|db|) branch. These tests pin the six-step conformance table
+# permanently so any future regression fails loudly.
+
+
+def _bfs_distances(src: EisensteinInteger, bound: int) -> dict:
+    """Graph distances from src over neighbors(), bounded to hex radius `bound`."""
+    from collections import deque
+
+    dist = {src: 0}
+    queue = deque([src])
+    while queue:
+        current = queue.popleft()
+        if dist[current] >= bound:
+            continue
+        for neighbor in current.neighbors():
+            if neighbor not in dist:
+                dist[neighbor] = dist[current] + 1
+                queue.append(neighbor)
+    return dist
+
+
+class TestSixStepConformance:
+    """For EVERY canonical unit step u: hex_distance(a, a+u) == 1 AND
+    neighbors(a) contains a+u AND the round-trip through Cartesian holds."""
+
+    @pytest.mark.parametrize("da,db", NEIGHBOR_DIRECTIONS)
+    def test_unit_step_is_norm_one(self, da, db):
+        u = EisensteinInteger(da, db)
+        assert u.norm() == 1
+        assert u.is_unit()
+
+    @pytest.mark.parametrize("da,db", NEIGHBOR_DIRECTIONS)
+    def test_hex_distance_of_unit_step_is_one(self, da, db):
+        a = EisensteinInteger(3, -2)
+        u = EisensteinInteger(da, db)
+        assert hex_distance(a, a + u) == 1
+
+    @pytest.mark.parametrize("da,db", NEIGHBOR_DIRECTIONS)
+    def test_neighbors_contains_unit_step(self, da, db):
+        a = EisensteinInteger(3, -2)
+        u = EisensteinInteger(da, db)
+        assert (a + u) in set(a.neighbors())
+
+    @pytest.mark.parametrize("da,db", NEIGHBOR_DIRECTIONS)
+    def test_unit_step_cartesian_round_trip(self, da, db):
+        u = EisensteinInteger(da, db)
+        assert EisensteinInteger.from_cartesian(*u.to_cartesian()) == u
+
+    def test_neighbors_exactly_the_six_units(self):
+        a = EisensteinInteger(3, -2)
+        expected = {a + EisensteinInteger(*d) for d in NEIGHBOR_DIRECTIONS}
+        assert len(a.neighbors()) == 6
+        assert set(a.neighbors()) == expected
+
+    def test_hex_distance_matches_bfs_over_box(self):
+        """Graph distance over neighbors() == hex_distance for a whole box."""
+        origin = EisensteinInteger(0, 0)
+        bfs = _bfs_distances(origin, bound=5)
+        for p, graph_d in bfs.items():
+            assert hex_distance(origin, p) == graph_d, (
+                f"hex_distance({origin}, {p})={hex_distance(origin, p)} != BFS {graph_d}"
+            )
+
+
 # ─── String Representation Tests ─────────────────────────
 
 class TestRepr:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "slackwater-lattice"
-version = "0.1.0"
+version = "0.1.1"
 description = "Exact integer arithmetic on the Eisenstein A₂ hexagonal lattice for build placement and pathfinding"
 readme = "README.md"
 license = {text = "MIT"}
