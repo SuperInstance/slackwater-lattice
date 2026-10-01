@@ -1,0 +1,196 @@
+FFF..FFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+______________ TestDistOneIffNeighbor.test_dist_one_iff_neighbor _______________
+
+self = <test_hex_distance_properties.TestDistOneIffNeighbor object at 0x7f44145ecd10>
+
+    def test_dist_one_iff_neighbor(self):
+        bad = []
+        for a, b in R4_PAIRS:
+            nb = a in R4 and b in set(a.neighbors())
+            d1 = hex_distance(a, b) == 1
+            if nb != d1:
+                bad.append((a, b, hex_distance(a, b), nb))
+>       assert not bad, f"{len(bad)} pairs violate dist==1 iff neighbor; first: {bad[0]}"
+E       AssertionError: 192 pairs violate dist==1 iff neighbor; first: (E(-4), E(-3 - 1ω), 1, False)
+E       assert not [(E(-4), E(-3 - 1ω), 1, False), (E(-4), E(-3 + 1ω), 2, True), (E(-4 + 1ω), E(-3), 1, False), (E(-4 + 1ω), E(-3 + 2ω), 2, True), (E(-4 + 2ω), E(-3 + 1ω), 1, False), (E(-4 + 2ω), E(-3 + 3ω), 2, True), ...]
+
+tests/test_hex_distance_properties.py:95: AssertionError
+________ TestDistOneIffNeighbor.test_every_neighbor_is_at_distance_one _________
+
+self = <test_hex_distance_properties.TestDistOneIffNeighbor object at 0x7f4414118530>
+
+    def test_every_neighbor_is_at_distance_one(self):
+        for a in R4:
+            for n in a.neighbors():
+>               assert hex_distance(a, n) == 1, f"neighbor {n} of {a} at distance {hex_distance(a, n)}"
+E               AssertionError: neighbor E(-3 + 1ω) of E(-4) at distance 2
+E               assert 2 == 1
+E                +  where 2 = hex_distance(E(-4), E(-3 + 1ω))
+
+tests/test_hex_distance_properties.py:100: AssertionError
+______ TestDistOneIffNeighbor.test_every_distance_one_pair_is_a_neighbor _______
+
+self = <test_hex_distance_properties.TestDistOneIffNeighbor object at 0x7f4414118bf0>
+
+    def test_every_distance_one_pair_is_a_neighbor(self):
+        for a in R4:
+            for b in R4:
+                if hex_distance(a, b) == 1:
+>                   assert b in set(a.neighbors()), f"{b} at distance 1 from {a} but not a neighbor"
+E                   AssertionError: E(-3 - 1ω) at distance 1 from E(-4) but not a neighbor
+E                   assert E(-3 - 1ω) in {E(-3), E(-4 - 1ω), E(-3 + 1ω), E(-5 - 1ω), E(-4 + 1ω), E(-5)}
+E                    +  where {E(-3), E(-4 - 1ω), E(-3 + 1ω), E(-5 - 1ω), E(-4 + 1ω), E(-5)} = set([E(-3), E(-5), E(-4 + 1ω), E(-4 - 1ω), E(-3 + 1ω), E(-5 - 1ω)])
+E                    +    where [E(-3), E(-5), E(-4 + 1ω), E(-4 - 1ω), E(-3 + 1ω), E(-5 - 1ω)] = neighbors()
+E                    +      where neighbors = E(-4).neighbors
+
+tests/test_hex_distance_properties.py:106: AssertionError
+___________ TestCanonicalCubeForm.test_equals_cube_formula_all_pairs ___________
+
+self = <test_hex_distance_properties.TestCanonicalCubeForm object at 0x7f44141189b0>
+
+    def test_equals_cube_formula_all_pairs(self):
+        bad = []
+        for a, b in R4_PAIRS:
+            da, db = a.a - b.a, a.b - b.b
+            cube = (abs(da) + abs(db - da) + abs(db)) // 2
+            if hex_distance(a, b) != cube:
+                bad.append((a, b, hex_distance(a, b), cube))
+>       assert not bad, f"{len(bad)} pairs disagree with the cube formula; first: {bad[0]}"
+E       AssertionError: 2924 pairs disagree with the cube formula; first: (E(-4), E(-3 - 1ω), 1, 2)
+E       assert not [(E(-4), E(-3 - 1ω), 1, 2), (E(-4), E(-3 + 1ω), 2, 1), (E(-4), E(-3 + 2ω), 3, 2), (E(-4), E(-3 + 3ω), 4, 3), (E(-4), E(-3 + 4ω), 5, 4), (E(-4), E(-2 - 2ω), 2, 4), ...]
+
+tests/test_hex_distance_properties.py:135: AssertionError
+__________________ TestCanonicalCubeForm.test_known_distances __________________
+
+self = <test_hex_distance_properties.TestCanonicalCubeForm object at 0x7f44141199d0>
+
+    def test_known_distances(self):
+        assert hex_distance(ORIGIN, EisensteinInteger(3, 0)) == 3
+        assert hex_distance(ORIGIN, EisensteinInteger(0, 3)) == 3
+>       assert hex_distance(ORIGIN, EisensteinInteger(3, 3)) == 3    # same-sign sector
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 6 == 3
+E        +  where 6 = hex_distance(E(0), E(3 + 3ω))
+E        +    where E(3 + 3ω) = EisensteinInteger(3, 3)
+
+tests/test_hex_distance_properties.py:140: AssertionError
+________________ TestBfsAgreement.test_bfs_matches_hex_distance ________________
+
+self = <test_hex_distance_properties.TestBfsAgreement object at 0x7f4414119b50>
+
+    def test_bfs_matches_hex_distance(self):
+        dist = bfs_distances([ORIGIN], bound_box=8)
+        bad = []
+        for b in R4:
+            if b == ORIGIN:
+                continue
+            if dist.get(b) != hex_distance(ORIGIN, b):
+                bad.append((b, hex_distance(ORIGIN, b), dist.get(b)))
+>       assert not bad, f"{len(bad)} BFS mismatches; first: {bad[0]}"
+E       AssertionError: 44 BFS mismatches; first: (E(-4 + 1ω), 4, 5)
+E       assert not [(E(-4 + 1ω), 4, 5), (E(-4 + 2ω), 4, 6), (E(-4 + 3ω), 4, 7), (E(-4 + 4ω), 4, 8), (E(-3 - 1ω), 4, 3), (E(-3 + 1ω), 3, 4), ...]
+
+tests/test_hex_distance_properties.py:157: AssertionError
+___________ TestBfsAgreement.test_bfs_matches_from_off_center_source ___________
+
+self = <test_hex_distance_properties.TestBfsAgreement object at 0x7f441411a990>
+
+    def test_bfs_matches_from_off_center_source(self):
+        src = EisensteinInteger(2, -2)
+        dist = bfs_distances([src], bound_box=8)
+        for b in ball(3):
+            p = src + EisensteinInteger(b.a, b.b)
+            if p == src:
+                continue
+>           assert dist.get(p) == hex_distance(src, p), f"{p}: BFS {dist.get(p)} != hex {hex_distance(src, p)}"
+E           AssertionError: E(-1 - 1ω): BFS 4 != hex 3
+E           assert 4 == 3
+E            +  where 4 = <built-in method get of dict object at 0x7f44142a2180>(E(-1 - 1ω))
+E            +    where <built-in method get of dict object at 0x7f44142a2180> = {E(0): 4, E(-1 - 1ω): 4, E(-1): 5, E(-1ω): 3, ...}.get
+E            +  and   3 = hex_distance(E(2 - 2ω), E(-1 - 1ω))
+
+tests/test_hex_distance_properties.py:166: AssertionError
+_ TestPublishedPyPI010BugIsPinned.test_witness_neighbor_scored_two_by_published_formula _
+
+self = <test_hex_distance_properties.TestPublishedPyPI010BugIsPinned object at 0x7f441411b050>
+
+    def test_witness_neighbor_scored_two_by_published_formula(self):
+        # (0,0) -> (1,1) is the ±(1+ω) step: a TRUE neighbor; published 0.1.0 scores it 2.
+        b = EisensteinInteger(1, 1)
+        assert b in set(ORIGIN.neighbors())
+>       assert hex_distance(ORIGIN, b) == 1
+E       assert 2 == 1
+E        +  where 2 = hex_distance(E(0), E(1 + 1ω))
+
+tests/test_hex_distance_properties.py:177: AssertionError
+_ TestPublishedPyPI010BugIsPinned.test_witness_non_neighbor_scored_one_by_published_formula _
+
+self = <test_hex_distance_properties.TestPublishedPyPI010BugIsPinned object at 0x7f441411b650>
+
+    def test_witness_non_neighbor_scored_one_by_published_formula(self):
+        # (0,0) -> (1,-1) is NOT a neighbor (true distance 2); published 0.1.0 scores it 1.
+        b = EisensteinInteger(1, -1)
+        assert b not in set(ORIGIN.neighbors())
+>       assert hex_distance(ORIGIN, b) == 2
+E       assert 1 == 2
+E        +  where 1 = hex_distance(E(0), E(1 - 1ω))
+
+tests/test_hex_distance_properties.py:184: AssertionError
+_ TestPublishedPyPI010BugIsPinned.test_published_formula_violates_iff_property_on_the_ball _
+
+self = <test_hex_distance_properties.TestPublishedPyPI010BugIsPinned object at 0x7f441411bd70>
+
+    def test_published_formula_violates_iff_property_on_the_ball(self):
+        # The published formula fails P1 on this exact, counted set of pairs —
+        # the defect is real in the published artifact, not a rumor.
+        bad = []
+        for a, b in R4_PAIRS:
+            nb = b in set(a.neighbors())
+            d1 = pypi_0_1_0_hex_distance(a, b) == 1
+            if nb != d1:
+                bad.append((a, b))
+        # Off-axis pairs are the published formula's violations; the exact count
+        # is a deterministic witness of the published artifact's defect.
+        assert len(bad) == 192, f"iff-violation count changed: {len(bad)} (expected 192 over 3,721 pairs)"
+>       assert all((hex_distance(a, b) == 1) != (pypi_0_1_0_hex_distance(a, b) == 1) for a, b in bad)
+E       assert False
+E        +  where False = all(<generator object TestPublishedPyPI010BugIsPinned.test_published_formula_violates_iff_property_on_the_ball.<locals>.<genexpr> at 0x7f44127db2e0>)
+
+tests/test_hex_distance_properties.py:199: AssertionError
+_ TestPublishedPyPI010BugIsPinned.test_current_formula_differs_from_published_only_off_axis _
+
+self = <test_hex_distance_properties.TestPublishedPyPI010BugIsPinned object at 0x7f4414118560>
+
+    def test_current_formula_differs_from_published_only_off_axis(self):
+        # The two formulas agree exactly when the offset is on a coordinate axis
+        # (da == 0 or db == 0) and disagree on EVERY off-axis pair — the textbook
+        # formula computes the true distance of the OTHER axial convention, so in
+        # this package's convention it errs on all of da/db-space except the axes.
+        agree_bad = []
+        differing = []
+        for a, b in R4_PAIRS:
+            da, db = a.a - b.a, a.b - b.b
+            cur, pub = hex_distance(a, b), pypi_0_1_0_hex_distance(a, b)
+            if cur != pub:
+                differing.append((da, db))
+            elif not (da == 0 or db == 0):
+                agree_bad.append((da, db, cur))
+>       assert differing, "fix does not differ from the published formula at all"
+E       AssertionError: fix does not differ from the published formula at all
+E       assert []
+
+tests/test_hex_distance_properties.py:215: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_hex_distance_properties.py::TestDistOneIffNeighbor::test_dist_one_iff_neighbor
+FAILED tests/test_hex_distance_properties.py::TestDistOneIffNeighbor::test_every_neighbor_is_at_distance_one
+FAILED tests/test_hex_distance_properties.py::TestDistOneIffNeighbor::test_every_distance_one_pair_is_a_neighbor
+FAILED tests/test_hex_distance_properties.py::TestCanonicalCubeForm::test_equals_cube_formula_all_pairs
+FAILED tests/test_hex_distance_properties.py::TestCanonicalCubeForm::test_known_distances
+FAILED tests/test_hex_distance_properties.py::TestBfsAgreement::test_bfs_matches_hex_distance
+FAILED tests/test_hex_distance_properties.py::TestBfsAgreement::test_bfs_matches_from_off_center_source
+FAILED tests/test_hex_distance_properties.py::TestPublishedPyPI010BugIsPinned::test_witness_neighbor_scored_two_by_published_formula
+FAILED tests/test_hex_distance_properties.py::TestPublishedPyPI010BugIsPinned::test_witness_non_neighbor_scored_one_by_published_formula
+FAILED tests/test_hex_distance_properties.py::TestPublishedPyPI010BugIsPinned::test_published_formula_violates_iff_property_on_the_ball
+FAILED tests/test_hex_distance_properties.py::TestPublishedPyPI010BugIsPinned::test_current_formula_differs_from_published_only_off_axis
+11 failed, 2 passed in 0.21s

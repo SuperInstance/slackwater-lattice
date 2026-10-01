@@ -96,3 +96,36 @@ from the other two so x+y+z = 0 exactly; on equal deviations the check order x �
 re-derived — that is the deterministic tie-break. Consequences: endpoints exact, length exactly
 d+1, consecutive points at hex distance exactly 1, identical output on every platform. Pinned
 example (test_tie_break_deterministic): E(0,0)→E(1,−1) = [E(0,0), E(1,0), E(1,−1)].
+
+---
+
+# ADDENDUM — wave-74d: the published PyPI 0.1.0 hex_distance defect, found and pinned
+
+The 67-a verdict above ("NOT REPRODUCED") was true of the repo tree and needs a
+correction of record: the defect was real in the **published PyPI 0.1.0 artifact**.
+Git forensics on this lane:
+
+- Commit `5bff9a3` ("📦 Published to PyPI + cleanup") shipped
+  `hex_distance = max(|da|, |db|, |da+db|)` — the textbook axial formula, correct for the
+  OTHER axial neighbor set {(±1,0),(0,±1),(1,−1),(−1,1)}, wrong for this package's
+  {(±1,0),(0,±1),±(1,1)}. The correction (same-sign → max, opposite-sign → sum) landed
+  unversioned in the next commit `2946624` with no changelog mention — hence 67-a's
+  non-reproduction against the repo baseline `6e42966`.
+- Measured on the `5bff9a3` artifact (radius-4 ball around the origin, 61 points,
+  3,721 ordered pairs): **192 iff-violations** of "dist(a,b)==1 iff b ∈ neighbors(a)"
+  (88 true neighbors scored ≠ 1 — every ±(1+ω) step scored 2; 104 non-neighbors scored
+  1 — every (1,−1)/(−1,1) diagonal scored 1). **Symmetry holds even in the buggy
+  formula** — the defect is an iff violation, not an asymmetry (the 2 symmetry tests
+  pass in the RED run below).
+- RED (worktree of `5bff9a3`, new suite only): **11 failed / 2 passed** —
+  `receipts/red-state-74d.txt`.
+- GREEN (fixed tree, full suite): **178 passed** (165 prior + 13 new property tests in
+  `tests/test_hex_distance_properties.py`: iff both directions, symmetry over all pairs,
+  exact cube-form identity `( |da| + |db−da| + |db| ) // 2`, BFS agreement from two
+  sources, and the published formula vendored + pinned with witnesses E(0,0)→E(1,1)
+  (neighbor, buggy 2) and E(0,0)→E(1,−1) (non-neighbor, buggy 1) and the exact
+  192-violation count).
+- Production change this lane: `hex_distance` rewritten to the canonical cube form
+  (byte-identical behavior, branch-free), convention trap documented in the docstring;
+  `lua_port.lua` docstring repaired (code was correct, comment described the buggy
+  formula). Version stays at the unreleased 0.1.1 (67-a's claim); no 0.1.2 burned.

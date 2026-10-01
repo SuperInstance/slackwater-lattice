@@ -69,7 +69,13 @@ end
 
 --[[
     Hex grid distance (number of steps) between two points.
-    Uses axial coordinate formula: (|da| + |db| + |da+db|) / 2
+    This package's six neighbor directions are {(±1,0), (0,±1), ±(1,1)} — the
+    units ±1, ±ω, ±(1+ω) of Z[omega] — so the cube map is (x,y,z) = (a, b−a, −b)
+    and the distance is (|da| + |db−da| + |db|) / 2 (here: same-sign ->
+    max(|da|,|db|), opposite-sign -> |da|+|db|). The textbook axial formula
+    (|da| + |db| + |da+db|) / 2 belongs to the OTHER axial neighbor set
+    {(±1,0),(0,±1),(1,−1),(−1,1)} and is WRONG here — that misapplication is
+    exactly the published PyPI 0.1.0 bug (see slackwater_lattice/eisenstein.py).
 ]]
 function Lattice.hexDistance(p1: {a: number, b: number}, p2: {a: number, b: number}): number
     local da = p1.a - p2.a

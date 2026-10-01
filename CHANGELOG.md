@@ -2,6 +2,34 @@
 
 ## [0.1.1] — Hex-line exactness + conformance receipts
 
+- **hex_distance ↔ neighbors() inconsistency FOUND and pinned — it lived in the published
+  PyPI 0.1.0 artifact (wave-74d).** Git forensics: the initial publish commit `5bff9a3`
+  ("📦 Published to PyPI + cleanup") shipped `hex_distance = max(|da|, |db|, |da+db|)` —
+  the textbook axial formula, which is the correct graph distance for the OTHER axial
+  neighbor set {(±1,0),(0,±1),(1,−1),(−1,1)} and wrong for this package's neighbor set
+  {(±1,0),(0,±1),±(1,1)} (the units ±1, ±ω, ±(1+ω) of ℤ[ω]). On that artifact the
+  "dist(a,b)==1 iff b ∈ neighbors(a)" property fails in 192 of the 3,721 ordered pairs of
+  the radius-4 ball (88 true neighbors scored ≠ 1 — every ±(1+ω) step scored 2; 104
+  non-neighbors scored 1 — every (1,−1)/(−1,1) diagonal scored 1). Symmetry, notably,
+  holds even in the buggy formula — the defect is an iff violation, not an asymmetry.
+  The correction already sat unversioned in the repo tree (commit `2946624`, inside a
+  "Published to PyPI + cleanup" commit, no changelog mention) — which is why the 67-a
+  brute-force audit below could not reproduce it against the repo. This lane:
+  (1) `hex_distance` is now the self-evident canonical cube form
+  `( |da| + |db−da| + |db| ) // 2` (== the old same-sign/opposite-sign branches; behavior
+  byte-identical), with the convention trap documented in the docstring;
+  (2) `tests/test_hex_distance_properties.py` — exhaustive property suite over the
+  radius-4 neighborhood: dist==1 iff neighbor (both directions), symmetry over all pairs,
+  exact cube-form identity, BFS-graph-distance agreement, and the published-0.1.0 formula
+  vendored + pinned (witnesses E(0,0)→E(1,1) and E(0,0)→E(1,−1), exact 192-violation
+  count) so the published formula cannot return unnoticed;
+  (3) honest RED run receipted: the new suite scores **11 failed / 2 passed against the
+  published 0.1.0 artifact** (worktree of `5bff9a3`), green against the fixed tree
+  (`receipts/red-state-74d.txt`);
+  (4) `lua_port.lua` comment repaired (the Luau code was correct; its docstring described
+  the buggy published formula).
+  Version note: 0.1.1 was already claimed (unpublished) by the 67-a lane; this lane folds
+  into the same unreleased 0.1.1 rather than burning 0.1.2.
 - **Fixed `hex_line` (geometry.py)**: replaced the float Cartesian lerp + snap
   interpolation with an exact integer cube-coordinate line draw. On v0.1.0,
   60,376 of 390,000 ordered pairs in the ±12 box produced consecutive line
@@ -20,6 +48,9 @@
   Honest finding: the wave-66 claim that hex_distance and neighbors() disagree
   at ±(1+ω) did NOT reproduce on v0.1.0 — the suite is green against the
   unmodified v0.1.0 arithmetic and is retained as a regression guard, not a fix.
+  [wave-74d correction: it did not reproduce *in the repo tree* because the fix
+  had already landed unversioned in `2946624`; the claim was true of the published
+  PyPI 0.1.0 artifact (`5bff9a3`) — see the first bullet.]
 - **CI workflows repaired** (.github/workflows/ci.yml, tests.yml): install the
   package itself with `python -m pip install -e ".[dev]"` — ci.yml previously
   guarded the editable install behind `[ -f setup.py ]`, which never fires in
@@ -28,7 +59,9 @@
 - **TEST-RECEIPT.md added**: run-verified pytest counts (127 baseline →
   12 failed/26 passed RED → 165 passed GREEN), the 12 failing-then-passing test
   names, the six-step conformance table, and the hex_line tie-break of record.
-  RED-state output preserved at receipts/red-state-67a.txt.
+  RED-state output preserved at receipts/red-state-67a.txt. [wave-74d adds
+  receipts/red-state-74d.txt: 13 new property tests, 11 failed/2 passed against
+  the published 0.1.0 artifact, 178 passed after the canonical-form pin.]
 
 ## [0.1.0] - Initial Release
 
