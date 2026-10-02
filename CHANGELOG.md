@@ -2,6 +2,25 @@
 
 ## [0.1.1] — Hex-line exactness + conformance receipts
 
+- **Property suite completed (wave-67d, branch `fix/hex-distance-consistency`)**: the
+  two mission properties the suite still lacked are now pinned in
+  `tests/test_hex_distance_properties.py` — (P6) the triangle inequality
+  `d(a,c) ≤ d(a,b) + d(b,c)`, grid-sampled exhaustively over radius-2 balls around
+  five centers (34,295 ordered triples) plus a seeded random sample over the ±12 box,
+  plus geodesic equality `d(a,c) == d(a,b) + d(b,c)` for every interior point of exact
+  `hex_line` paths; (P7) the ring law `|ring_k| == 6k` for k ≥ 1 (origin + offset
+  centers), `ring_1 == neighbors()` exactly, and the cumulative ball law
+  `|rings(k)| == 1 + 3k(k+1)` with `rings(k) ∖ rings(k−1) == ring_k`. No runtime code
+  changed — `hex_distance` was already the canonical cube form on main (wave-74d).
+  Discrimination evidence in `receipts/bug-main.txt`: 67-d's independently written iff
+  probe is RED against the published 0.1.0 artifact (worktree of `5bff9a3`: 4/61
+  origin cells violate the iff; ring_1 picks up (1,−1)/(−1,1) and misses (1,1)/(−1,−1))
+  and GREEN on main — the metric-law properties (P6, P7a, P7c) pass under BOTH formulas
+  (the published formula is a genuine metric of the other convention), so P1/P7b are
+  what pin the convention. 178 → 185 tests. README badges aligned (version 0.1.0 →
+  0.1.1 per pyproject/`__init__`, tests 127 → 185). Version stays at the unreleased
+  0.1.1; no version burned.
+
 - **hex_distance ↔ neighbors() inconsistency FOUND and pinned — it lived in the published
   PyPI 0.1.0 artifact (wave-74d).** Git forensics: the initial publish commit `5bff9a3`
   ("📦 Published to PyPI + cleanup") shipped `hex_distance = max(|da|, |db|, |da+db|)` —

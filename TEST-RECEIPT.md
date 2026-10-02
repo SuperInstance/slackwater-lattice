@@ -129,3 +129,60 @@ Git forensics on this lane:
   (byte-identical behavior, branch-free), convention trap documented in the docstring;
   `lua_port.lua` docstring repaired (code was correct, comment described the buggy
   formula). Version stays at the unreleased 0.1.1 (67-a's claim); no 0.1.2 burned.
+
+---
+
+# ADDENDUM 2 — wave-67d (task 67-d): property suite completed, stale-scout-list audit
+
+Branch `fix/hex-distance-consistency` (PR lane; no direct push to main). All numbers
+run-verified this lane. Environment: Python 3.12.14, pytest 9.0.2, Linux container.
+
+## What this lane found
+
+The sprint-1 scout item ("hex_distance and neighbors() disagree by ±(1+ω) — test
+fails on main") was STALE: main @ 94a7f2b already contains the canonical cube-form
+`hex_distance` (landed unversioned in `2946624`, pinned by wave-74d in `94a7f2b`).
+A freshly written iff probe (`receipts/bug-main.txt`, source verbatim therein) was
+run FIRST, before any edit:
+
+| state | probe result |
+|---|---|
+| worktree of `5bff9a3` (published PyPI 0.1.0 — what main shipped at sprint-1) | **RED** — 4 of 61 origin cells violate `hex_distance(o,c)==1 ⟺ c ∈ neighbors(o)` (±(1+ω) neighbors scored 2; (1,−1)/(−1,1) diagonals scored 1); pytest: 1 failed |
+| main @ 94a7f2b == this branch's base | **GREEN** — 0 violations |
+
+Property-discrimination table (receipts/bug-main.txt): under the published formula,
+P1 iff and P7b ring_1==neighbors FAIL while P6 triangle, P7a |ring_k|==6k, and P7c
+cumulative ball law PASS — the published formula is a genuine metric of the OTHER
+axial convention, so only the convention-tied properties catch the defect.
+
+## pytest counts (this lane)
+
+| stage | command | result |
+|---|---|---|
+| baseline (main 94a7f2b, before edits) | `python3 -m pytest -q` | **178 passed** |
+| GREEN after additions | `python3 -m pytest -q` | **185 passed** (0 warnings) |
+
+Net +7 tests, all in `tests/test_hex_distance_properties.py`:
+- `TestTriangleInequality` (3): exhaustive triangle inequality over radius-2 balls
+  around five centers (5 × 19³ = 34,295 ordered triples); seeded (random.Random(67))
+  sample over the ±12 box (300 points × 10 random pairs each); geodesic equality
+  along exact `hex_line` paths (d(a,c) == d(a,b)+d(b,c) for every interior b, with
+  line length == d+1 re-asserted).
+- `TestRingLaw` (4): |hex_ring(c,k)| == 6k for k=1..8 at the origin and k=1..5 at
+  four offset centers (with exact-distance check per point); ring_1 == neighbors()
+  exactly at five centers (the convention-tied property — RED against the published
+  formula per receipts/bug-main.txt); cumulative ball law |rings(k)| == 1+3k(k+1)
+  for k=1..6 with rings(k) ∖ rings(k−1) == ring_k and |ball(k)| == 1+3k(k+1).
+
+No runtime code changed. `hex_distance` was NOT touched — the minimal fix was
+already on main; redesigning it again would have been churn, not repair.
+
+## Version note
+
+pyproject.toml and `slackwater_lattice.__version__` already say 0.1.1 (unreleased,
+claimed by 67-a/74-d). This lane changes no runtime behavior; the PR folds into the
+same unreleased 0.1.1. README's version badge was stale (0.1.0) and the tests badge
+was stale (127, pre-74d) — both aligned (0.1.1 / 185). The published PyPI 0.1.0
+artifact remains the buggy one; the maintainer lane should cut the 0.1.1 release
+from main + this PR so the published wheel stops shipping the wrong-convention
+`hex_distance`.

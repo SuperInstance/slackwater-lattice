@@ -18,6 +18,26 @@ Properties:
                                                        ball; BFS run on a radius-8 box so
                                                        shortest paths never leave the box)
 
+Wave-67d additions (P6/P7 — the remaining mission properties):
+  P6  d(a,c) ≤ d(a,b) + d(b,c)                        (triangle inequality, grid-sampled:
+                                                       exhaustive over radius-2 balls around
+                                                       five centers + a seeded random sample
+                                                       over the ±12 box; plus geodesic
+                                                       equality along exact hex_line paths)
+  P7  ring law: |ring_k| == 6k for k ≥ 1              (origin and offset centers),
+       ring_1 == neighbors(c) exactly                  (the convention-tied ring property —
+                                                       this one FAILS against the published
+                                                       0.1.0 formula), and the cumulative
+                                                       ball law |rings(k)| == 1 + 3k(k+1)
+                                                       with rings(k) minus rings(k−1)
+                                                       equal to ring_k exactly.
+
+  P6/P7 are metric-law guards: they hold for any true metric on the point set
+  (including the wrong-convention published formula — it is a genuine metric,
+  just for the OTHER neighbor set) and fail for any non-metric. P1 is what
+  pins the CONVENTION; P6/P7 pin "it is a metric at all". Together the suite
+  demands both. Evidence: receipts/bug-main.txt.
+
 The published PyPI 0.1.0 artifact (commit 5bff9a3) shipped
 
     d = max(|da|, |db|, |da + db|)
@@ -216,3 +236,124 @@ class TestPublishedPyPI010BugIsPinned:
         assert not agree_bad, f"on-axis agreement violated: {agree_bad[:6]}"
         assert all(da != 0 and db != 0 for da, db in differing), \
             f"unexpected off-axis disagreement: {sorted(set(differing))[:6]}"
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Wave-67d additions: P6 triangle inequality (grid-sampled) + P7 ring law.
+# Metric-law guards — see the module docstring and receipts/bug-main.txt.
+# ═════════════════════════════════════════════════════════════════════════════
+
+import random
+
+from slackwater_lattice.eisenstein import EisensteinInteger
+from slackwater_lattice.geometry import hex_ring
+
+TRIANGLE_CENTERS = [
+    EisensteinInteger(0, 0),
+    EisensteinInteger(2, -1),
+    EisensteinInteger(-3, 3),
+    EisensteinInteger(1, 1),
+    EisensteinInteger(-2, -2),
+]
+
+
+class TestTriangleInequality:
+    """P6: d(a,c) ≤ d(a,b) + d(b,c), grid-sampled."""
+
+    def test_exhaustive_on_radius2_balls_around_five_centers(self):
+        checked = 0
+        for center in TRIANGLE_CENTERS:
+            pts = [center + EisensteinInteger(p.a, p.b) for p in ball(2)]  # 19 points
+            for a in pts:
+                for b in pts:
+                    for c in pts:
+                        d_ac = hex_distance(a, c)
+                        assert d_ac <= hex_distance(a, b) + hex_distance(b, c), (
+                            f"triangle violated at center {center}: "
+                            f"a={a} b={b} c={c} d(a,c)={d_ac}"
+                        )
+                        checked += 1
+        assert checked == 5 * 19**3  # 34,295 triples, deterministic
+
+    def test_seeded_random_sample_wide_box(self):
+        rng = random.Random(67)  # fixed seed — deterministic across platforms
+        pts = [EisensteinInteger(rng.randint(-12, 12), rng.randint(-12, 12)) for _ in range(300)]
+        for a in pts:
+            for _ in range(10):
+                b = EisensteinInteger(rng.randint(-12, 12), rng.randint(-12, 12))
+                c = EisensteinInteger(rng.randint(-12, 12), rng.randint(-12, 12))
+                assert hex_distance(a, c) <= hex_distance(a, b) + hex_distance(b, c), (
+                    f"triangle violated: a={a} b={b} c={c}"
+                )
+
+    def test_geodesic_equality_along_exact_hex_lines(self):
+        # On a geodesic, the triangle collapses to equality:
+        # d(a,c) == d(a,b) + d(b,c) for every intermediate b of a shortest path.
+        from slackwater_lattice.geometry import hex_line
+
+        segments = [
+            (EisensteinInteger(0, 0), EisensteinInteger(5, 3)),
+            (EisensteinInteger(-4, 2), EisensteinInteger(3, -4)),
+            (EisensteinInteger(2, 2), EisensteinInteger(-3, 5)),
+            (EisensteinInteger(0, 0), EisensteinInteger(6, -2)),
+        ]
+        for start, goal in segments:
+            line = hex_line(start, goal)
+            d = hex_distance(start, goal)
+            assert len(line) == d + 1, f"hex_line({start}, {goal}) length {len(line)} != {d + 1}"
+            for i in range(1, len(line) - 1):
+                mid = line[i]
+                total = hex_distance(start, mid) + hex_distance(mid, goal)
+                assert total == d, (
+                    f"non-geodesic point {mid} on hex_line({start}, {goal}): "
+                    f"{total} != {d}"
+                )
+
+
+class TestRingLaw:
+    """P7: |ring_k| == 6k (k ≥ 1); ring_1 == neighbors(); cumulative ball law."""
+
+    def test_ring_cardinality_6k_origin(self):
+        for k in range(1, 9):
+            ring = hex_ring(ORIGIN, k)
+            assert len(ring) == 6 * k, f"|ring_{k}| = {len(ring)} != {6 * k} (origin)"
+
+    def test_ring_cardinality_6k_offset_centers(self):
+        centers = [
+            EisensteinInteger(2, -1),
+            EisensteinInteger(-3, 3),
+            EisensteinInteger(5, 2),
+            EisensteinInteger(-1, -1),
+        ]
+        for center in centers:
+            for k in range(1, 6):
+                ring = hex_ring(center, k)
+                assert len(ring) == 6 * k, f"|ring_{k}(c={center})| = {len(ring)} != {6 * k}"
+                for p in ring:
+                    assert p != center
+                    assert hex_distance(center, p) == k, f"{p} on ring {k} of {center} at distance {hex_distance(center, p)}"
+
+    def test_ring1_is_exactly_the_neighbor_set(self):
+        # The convention-tied ring property: the set of cells scored at distance 1
+        # must BE the neighbor set. This FAILS against the published 0.1.0 formula
+        # (its ring 1 contains (1,-1), which is not a neighbor, and misses (1,1),
+        # which is) — see receipts/bug-main.txt.
+        centers = TRIANGLE_CENTERS
+        for center in centers:
+            assert set(hex_ring(center, 1)) == set(center.neighbors()), (
+                f"ring_1({center}) != neighbors({center})"
+            )
+
+    def test_rings_cumulative_ball_law(self):
+        # |ball(k)| == 1 + sum_{j=1..k} 6j == 1 + 3k(k+1); the ring-by-ring
+        # difference must equal exactly hex_ring at that radius.
+        prev = set()
+        for k in range(1, 7):
+            within = set(ORIGIN.rings(k))  # rings() excludes the center itself
+            assert len(within) == 3 * k * (k + 1), (
+                f"|rings({k})| = {len(within)} != {3 * k * (k + 1)}"
+            )
+            ring_k = set(hex_ring(ORIGIN, k))
+            assert within - prev == ring_k, f"rings({k}) \\ rings({k - 1}) != ring_{k}"
+            assert len(ball(k)) == 1 + 3 * k * (k + 1)  # ball() helper includes center
+            prev = within
