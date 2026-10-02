@@ -232,3 +232,28 @@ print(path.length()) # hex-optimal, avoids all wall points
 ## License
 
 MIT
+
+## Releases
+
+Fleet maintainer's note on the published artifacts (2026-10-02, task 69-c):
+
+- **0.1.0 — published on PyPI, contains the convention bug.** The published
+  wheel (build commit `5bff9a3`) ships `hex_distance = max(|da|, |db|, |da+db|)` —
+  the textbook axial formula, which is correct for the *other* axial neighbor set
+  `{(±1,0), (0,±1), (1,−1), (−1,1)}` but wrong for this package's neighbor set
+  (the ℤ[ω]-units `{(±1,0), (0,±1), ±(1,1)}`). **Do not use `hex_distance` from
+  the 0.1.0 wheel with ℤ[ω]-unit neighbors**: it scores every ±(1+ω) step — a
+  true neighbor step — as 2, and the (1,−1)/(−1,1) diagonal — not a neighbor
+  step — as 1 (192 iff-violations over the 3,721 ordered pairs of the radius-4
+  ball; evidence in `receipts/bug-main.txt`).
+- **0.1.1 — canonical fix + property suite; PyPI publish pending credentials.**
+  The convention-correct `hex_distance` and the exhaustive property suite that
+  pins it (`tests/test_hex_distance_properties.py`, P1–P7, 185 tests) are merged
+  to `main` (PR #1, merge commit `232f49e`); the `v0.1.1` git tag (`9f05653`)
+  anchors the first corrected tree. The PyPI 0.1.1 upload is pending maintainer
+  credentials — until it lands, install from source rather than trusting the
+  0.1.0 wheel's `hex_distance`:
+
+  ```bash
+  pip install git+https://github.com/SuperInstance/slackwater-lattice@v0.1.1
+  ```
