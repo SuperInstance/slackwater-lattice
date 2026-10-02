@@ -246,14 +246,17 @@ Fleet maintainer's note on the published artifacts (2026-10-02, task 69-c):
   true neighbor step — as 2, and the (1,−1)/(−1,1) diagonal — not a neighbor
   step — as 1 (192 iff-violations over the 3,721 ordered pairs of the radius-4
   ball; evidence in `receipts/bug-main.txt`).
-- **0.1.1 — canonical fix + property suite; PyPI publish pending credentials.**
+- **0.1.1 — canonical fix + property suite; PUBLISHED 2026-10-02T22:17:04Z.**
   The convention-correct `hex_distance` and the exhaustive property suite that
-  pins it (`tests/test_hex_distance_properties.py`, P1–P7, 185 tests) are merged
+  pins it (`tests/test_hex_distance_properties.py`, P1–P7) are merged
   to `main` (PR #1, merge commit `232f49e`); the `v0.1.1` git tag (`9f05653`)
-  anchors the first corrected tree. The PyPI 0.1.1 upload is pending maintainer
-  credentials — until it lands, install from source rather than trusting the
-  0.1.0 wheel's `hex_distance`:
+  anchors the first corrected tree. The PyPI 0.1.1 upload landed
+  2026-10-02T22:17:04Z (sdist+wheel, twine via maintainer token; tag-tree
+  suite green at upload: 165 passed). Post-upload live verification from a
+  clean venv against pypi.org: `hex_distance(0, 1+ω) == 1`,
+  `hex_distance(0, 1−ω) == 2` — the 0.1.0 convention bug is dead on the
+  index. `pip install slackwater-lattice` now ships the fix:
 
   ```bash
-  pip install git+https://github.com/SuperInstance/slackwater-lattice@v0.1.1
+  pip install slackwater-lattice==0.1.1
   ```
