@@ -1,7 +1,7 @@
 # slackwater-lattice
 
-![tests](https://img.shields.io/badge/tests-127%20passed-brightgreen)
-![version](https://img.shields.io/badge/version-0.1.0-blue)
+![tests](https://img.shields.io/badge/tests-185%20passed-brightgreen)
+![version](https://img.shields.io/badge/version-0.1.1-blue)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 
 Exact integer geometry on the Eisenstein A₂ hexagonal lattice — the densest packing of circles in a plane. Every point has exactly six equidistant neighbors. No privileged axis. No floating-point drift. This package provides Eisenstein integer arithmetic, build placement with collision detection, and A* pathfinding on the hexagonal neighbor graph.
